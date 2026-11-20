@@ -18,7 +18,7 @@ Edite os contatos da loja em `src/lib/store-config.ts`. Pedidos são encaminhado
 
 ## Painel da loja
 
-O acesso fica em `/admin`. O dono cadastra funcionários e define senhas temporárias. Cada conta troca a senha ao entrar pela primeira vez.
+O acesso fica em `/admin` na Vercel. No Sites, esse caminho abre o painel hospedado na Vercel. O dono cadastra funcionários e define senhas temporárias. Cada conta troca a senha ao entrar pela primeira vez.
 
 Aplique `db/admin-schema.sql` após o schema inicial. Em produção, configure `ADMIN_DATABASE_URL` como segredo separado da conexão da vitrine. Use um papel de aplicação dedicado com acesso às tabelas de administração e às funções da migração. O papel da vitrine precisa executar apenas a função de registro de pedidos e consultar o catálogo e as fotos.
 

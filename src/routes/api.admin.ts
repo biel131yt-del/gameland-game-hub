@@ -5,8 +5,10 @@ import { getAdmin, postAdmin } from "@/lib/admin-api.server";
 export const Route = createFileRoute("/api/admin")({
   server: {
     handlers: {
-      GET: ({ request }) => getAdmin(request),
-      POST: ({ request }) => postAdmin(request),
+      GET: ({ request }) =>
+        import.meta.env.MODE === "sites" ? new Response(null, { status: 404 }) : getAdmin(request),
+      POST: ({ request }) =>
+        import.meta.env.MODE === "sites" ? new Response(null, { status: 404 }) : postAdmin(request),
     },
   },
 });

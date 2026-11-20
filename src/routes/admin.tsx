@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { BarChart3, Boxes, LogOut, ReceiptText, ShoppingBag, UsersRound } from "lucide-react";
 import { useState } from "react";
@@ -19,6 +19,11 @@ import { SalesPanel } from "@/components/admin/sales-panel";
 import { ExpensesPanel, TeamPanel } from "@/components/admin/team-expenses";
 
 export const Route = createFileRoute("/admin")({
+  beforeLoad: () => {
+    if (import.meta.env.MODE === "sites") {
+      throw redirect({ href: "https://gameland-game-hub.vercel.app/admin" });
+    }
+  },
   head: () => ({
     meta: [{ title: "Painel · GameLandia" }, { name: "robots", content: "noindex, nofollow" }],
   }),
