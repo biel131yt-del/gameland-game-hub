@@ -3,7 +3,7 @@ import { useQueryClient } from "@tanstack/react-query";
 
 import { formatBRL } from "@/lib/cart";
 import { centsToInput } from "@/lib/money";
-import { CATEGORIES, categoryLabel, type CategoryId } from "@/lib/products";
+import { categoryLabel, type Category, type CategoryId } from "@/lib/products";
 
 import {
   control,
@@ -14,6 +14,7 @@ import {
   mutate,
   Panel,
   price,
+  readPhoto,
   secondary,
   textField,
   usePanel,
@@ -37,23 +38,20 @@ type Product = {
   specs?: string[];
 };
 type Inventory = {
+  categories: Category[];
   products: Product[];
   movements: { created_at: string; name: string; delta: number; reason: string }[];
 };
 
-async function readPhoto(data: FormData) {
-  const file = data.get("photo");
-  if (!(file instanceof File) || !file.size) return undefined;
-  if (file.size > 1_800_000) throw new Error("A foto deve ter até 1,8 MB.");
-  return new Promise<string>((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(String(reader.result));
-    reader.onerror = () => reject(new Error("Não foi possível ler a foto."));
-    reader.readAsDataURL(file);
-  });
-}
-
-function ProductEditor({ product, done }: { product?: Product | undefined; done: () => void }) {
+function ProductEditor({
+  product,
+  categories,
+  done,
+}: {
+  product?: Product | undefined;
+  categories: Category[];
+  done: () => void;
+}) {
   return (
     <Form
       submit={product ? "Salvar produto" : "Cadastrar produto"}
@@ -92,7 +90,7 @@ function ProductEditor({ product, done }: { product?: Product | undefined; done:
       <div className="grid gap-3 sm:grid-cols-2">
         <Field label="Categoria">
           <select className={control} name="category" defaultValue={product?.category}>
-            {CATEGORIES.map((entry) => (
+            {categories.map((entry) => (
               <option key={entry.id} value={entry.id}>
                 {entry.label}
               </option>
@@ -280,7 +278,12 @@ export function InventoryPanel({ owner }: { owner: boolean }) {
           {editing.mode === "stock" && product ? (
             <StockEditor key={product.id} product={product} done={done} />
           ) : (
-            <ProductEditor key={product?.id ?? "new"} product={product} done={done} />
+            <ProductEditor
+              key={product?.id ?? "new"}
+              product={product}
+              categories={query.data.categories}
+              done={done}
+            />
           )}
         </Panel>
       )}
@@ -296,6 +299,7 @@ export function InventoryPanel({ owner }: { owner: boolean }) {
           {owner && (
             <button
               className={secondary}
+              disabled={!query.data.categories.length}
               onClick={() => {
                 setEditing({ mode: "new" });
                 window.scrollTo(0, 0);
@@ -324,7 +328,8 @@ export function InventoryPanel({ owner }: { owner: boolean }) {
               <div className="min-w-36 flex-1">
                 <p className="font-medium">{item.name}</p>
                 <p className="text-xs text-muted-foreground">
-                  {categoryLabel(item.category)} · {formatBRL(item.price_cents)}
+                  {categoryLabel(item.category, query.data.categories)} ·{" "}
+                  {formatBRL(item.price_cents)}
                   {!item.active && " · Oculto"}
                 </p>
               </div>

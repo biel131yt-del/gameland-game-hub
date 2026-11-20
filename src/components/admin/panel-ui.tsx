@@ -171,3 +171,15 @@ export const day = (value: string) =>
   new Intl.DateTimeFormat("pt-BR", { dateStyle: "short", timeZone: "America/Sao_Paulo" }).format(
     new Date(value),
   );
+
+export async function readPhoto(data: FormData) {
+  const file = data.get("photo");
+  if (!(file instanceof File) || !file.size) return undefined;
+  if (file.size > 1_800_000) throw new Error("A foto deve ter até 1,8 MB.");
+  return new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result));
+    reader.onerror = () => reject(new Error("Não foi possível ler a foto."));
+    reader.readAsDataURL(file);
+  });
+}

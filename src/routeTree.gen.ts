@@ -15,6 +15,7 @@ import { Route as LojaRouteImport } from './routes/loja'
 import { Route as ApiAdminRouteImport } from './routes/api.admin'
 import { Route as ApiCheckoutRouteImport } from './routes/api.checkout'
 import { Route as ProdutoIdRouteImport } from './routes/produto.$id'
+import { Route as ApiCategoryPhotoIdRouteImport } from './routes/api.category-photo.$id'
 import { Route as ApiProductPhotoIdRouteImport } from './routes/api.product-photo.$id'
 
 const IndexRoute = IndexRouteImport.update({
@@ -47,6 +48,11 @@ const ProdutoIdRoute = ProdutoIdRouteImport.update({
   path: '/produto/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiCategoryPhotoIdRoute = ApiCategoryPhotoIdRouteImport.update({
+  id: '/api/category-photo/$id',
+  path: '/api/category-photo/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiProductPhotoIdRoute = ApiProductPhotoIdRouteImport.update({
   id: '/api/product-photo/$id',
   path: '/api/product-photo/$id',
@@ -60,6 +66,7 @@ export interface FileRoutesByFullPath {
   '/api/admin': typeof ApiAdminRoute
   '/api/checkout': typeof ApiCheckoutRoute
   '/produto/$id': typeof ProdutoIdRoute
+  '/api/category-photo/$id': typeof ApiCategoryPhotoIdRoute
   '/api/product-photo/$id': typeof ApiProductPhotoIdRoute
 }
 export interface FileRoutesByTo {
@@ -69,6 +76,7 @@ export interface FileRoutesByTo {
   '/api/admin': typeof ApiAdminRoute
   '/api/checkout': typeof ApiCheckoutRoute
   '/produto/$id': typeof ProdutoIdRoute
+  '/api/category-photo/$id': typeof ApiCategoryPhotoIdRoute
   '/api/product-photo/$id': typeof ApiProductPhotoIdRoute
 }
 export interface FileRoutesById {
@@ -79,6 +87,7 @@ export interface FileRoutesById {
   '/api/admin': typeof ApiAdminRoute
   '/api/checkout': typeof ApiCheckoutRoute
   '/produto/$id': typeof ProdutoIdRoute
+  '/api/category-photo/$id': typeof ApiCategoryPhotoIdRoute
   '/api/product-photo/$id': typeof ApiProductPhotoIdRoute
 }
 export interface FileRouteTypes {
@@ -90,6 +99,7 @@ export interface FileRouteTypes {
     | '/api/admin'
     | '/api/checkout'
     | '/produto/$id'
+    | '/api/category-photo/$id'
     | '/api/product-photo/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -99,6 +109,7 @@ export interface FileRouteTypes {
     | '/api/admin'
     | '/api/checkout'
     | '/produto/$id'
+    | '/api/category-photo/$id'
     | '/api/product-photo/$id'
   id:
     | '__root__'
@@ -108,6 +119,7 @@ export interface FileRouteTypes {
     | '/api/admin'
     | '/api/checkout'
     | '/produto/$id'
+    | '/api/category-photo/$id'
     | '/api/product-photo/$id'
   fileRoutesById: FileRoutesById
 }
@@ -118,6 +130,7 @@ export interface RootRouteChildren {
   ApiAdminRoute: typeof ApiAdminRoute
   ApiCheckoutRoute: typeof ApiCheckoutRoute
   ProdutoIdRoute: typeof ProdutoIdRoute
+  ApiCategoryPhotoIdRoute: typeof ApiCategoryPhotoIdRoute
   ApiProductPhotoIdRoute: typeof ApiProductPhotoIdRoute
 }
 
@@ -165,6 +178,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProdutoIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/category-photo/$id': {
+      id: '/api/category-photo/$id'
+      path: '/api/category-photo/$id'
+      fullPath: '/api/category-photo/$id'
+      preLoaderRoute: typeof ApiCategoryPhotoIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/product-photo/$id': {
       id: '/api/product-photo/$id'
       path: '/api/product-photo/$id'
@@ -182,6 +202,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiAdminRoute: ApiAdminRoute,
   ApiCheckoutRoute: ApiCheckoutRoute,
   ProdutoIdRoute: ProdutoIdRoute,
+  ApiCategoryPhotoIdRoute: ApiCategoryPhotoIdRoute,
   ApiProductPhotoIdRoute: ApiProductPhotoIdRoute,
 }
 export const routeTree = rootRouteImport

@@ -1,8 +1,9 @@
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
-import { BarChart3, Boxes, LogOut, ReceiptText, ShoppingBag, UsersRound } from "lucide-react";
+import { BarChart3, Boxes, Tags, LogOut, ReceiptText, ShoppingBag, UsersRound } from "lucide-react";
 import { useState } from "react";
 
+import { CategoriesPanel } from "@/components/admin/categories-panel";
 import { InventoryPanel } from "@/components/admin/inventory-panel";
 import { OverviewPanel } from "@/components/admin/overview-panel";
 import {
@@ -40,6 +41,7 @@ const areas = [
   { id: "overview", title: "Visão geral", icon: BarChart3, ownerOnly: true },
   { id: "sales", title: "Vendas", icon: ShoppingBag },
   { id: "products", title: "Estoque", icon: Boxes },
+  { id: "categories", title: "Categorias", icon: Tags, ownerOnly: true },
   { id: "expenses", title: "Gastos", icon: ReceiptText, ownerOnly: true },
   { id: "team", title: "Equipe", icon: UsersRound, ownerOnly: true },
 ] as const;
@@ -276,6 +278,7 @@ function Dashboard({ account, signedOut }: { account: Account; signedOut: () => 
         {area === "overview" && owner && <OverviewPanel month={month} />}
         {area === "sales" && <SalesPanel month={month} />}
         {area === "products" && <InventoryPanel owner={owner} />}
+        {area === "categories" && owner && <CategoriesPanel />}
         {area === "expenses" && owner && <ExpensesPanel key={month} month={month} />}
         {area === "team" && owner && <TeamPanel />}
       </main>

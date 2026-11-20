@@ -5,7 +5,6 @@ import heroImage from "@/assets/hero-gaming.jpg";
 import { LocationSection } from "@/components/store/location-section";
 import { ProductCard } from "@/components/store/product-card";
 import { Reveal } from "@/components/store/reveal";
-import { CATEGORIES } from "@/lib/products";
 import { STORE } from "@/lib/store-config";
 
 export const Route = createFileRoute("/")({
@@ -44,7 +43,7 @@ const PERKS = [
 ];
 
 function Index() {
-  const products = getRouteApi("__root__").useLoaderData();
+  const { products, categories } = getRouteApi("__root__").useLoaderData();
   const featured = products.filter((p) => p.featured);
 
   return (
@@ -116,25 +115,25 @@ function Index() {
       </div>
 
       {/* Categories */}
-      <section className="mx-auto max-w-7xl px-4 py-20 sm:px-6">
+      {categories.length > 0 && <section className="mx-auto max-w-7xl px-4 py-20 sm:px-6">
         <Reveal>
           <p className="font-display text-sm font-semibold uppercase tracking-widest text-accent">Categorias</p>
           <h2 className="mt-2 font-display text-4xl font-bold uppercase sm:text-5xl">Escolha seu mundo</h2>
         </Reveal>
         <div className="mt-10 grid grid-cols-2 gap-4 md:grid-cols-5">
-          {CATEGORIES.map((cat, i) => (
+          {categories.map((cat, i) => (
             <Reveal key={cat.id} delay={i * 80}>
               <Link
                 to="/loja"
                 search={{ categoria: cat.id }}
-                className="group relative block aspect-[3/4] overflow-hidden rounded-xl border border-border"
+                className="group relative block aspect-[3/4] overflow-hidden rounded-xl border border-border bg-card"
               >
-                <img
+                {cat.image && <img
                   src={cat.image}
-                  alt={cat.label}
+                  alt=""
                   loading="lazy"
                   className="size-full object-cover transition-transform duration-700 group-hover:scale-110"
-                />
+                />}
                 <div className="absolute inset-0 bg-gradient-to-t from-background via-background/30 to-transparent" />
                 <div className="absolute inset-x-0 bottom-0 p-4">
                   <p className="text-xs text-muted-foreground">{cat.tagline}</p>
@@ -147,7 +146,7 @@ function Index() {
             </Reveal>
           ))}
         </div>
-      </section>
+      </section>}
 
       {/* Featured */}
       <section className="bg-grid border-y border-border">

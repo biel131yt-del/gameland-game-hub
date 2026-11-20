@@ -4,15 +4,14 @@ import { useMemo, useState } from "react";
 
 import { ProductCard } from "@/components/store/product-card";
 import { Reveal } from "@/components/store/reveal";
-import { CATEGORIES, type CategoryId } from "@/lib/products";
 import { cn } from "@/lib/utils";
 
-type LojaSearch = { categoria?: CategoryId };
+type LojaSearch = { categoria?: string };
 
 export const Route = createFileRoute("/loja")({
   validateSearch: (search: Record<string, unknown>): LojaSearch => {
     const c = search["categoria"];
-    return CATEGORIES.some((cat) => cat.id === c) ? { categoria: c as CategoryId } : {};
+    return typeof c === "string" && /^[a-z0-9-]{1,60}$/.test(c) ? { categoria: c } : {};
   },
   head: () => ({
     meta: [
@@ -34,10 +33,11 @@ export const Route = createFileRoute("/loja")({
 });
 
 function LojaPage() {
-  const { categoria } = Route.useSearch();
+  const { categoria: requested } = Route.useSearch();
   const [query, setQuery] = useState("");
 
-  const catalog = getRouteApi("__root__").useLoaderData();
+  const { products: catalog, categories } = getRouteApi("__root__").useLoaderData();
+  const categoria = categories.find(({ id }) => id === requested)?.id;
   const products = useMemo(() => {
     const q = query.trim().toLowerCase();
     return catalog.filter(
@@ -66,7 +66,7 @@ function LojaPage() {
           >
             Todos
           </Link>
-          {CATEGORIES.map((cat) => (
+          {categories.map((cat) => (
             <Link
               key={cat.id}
               to="/loja"

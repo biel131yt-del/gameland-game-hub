@@ -38,7 +38,7 @@ export function ProductCard({ product }: { product: Product }) {
       </Link>
       <div className="flex flex-1 flex-col p-4">
         <p className="text-xs font-semibold uppercase tracking-widest text-accent">
-          {categoryLabel(product.category)}
+          {product.categoryLabel ?? categoryLabel(product.category)}
         </p>
         <Link to="/produto/$id" params={{ id: product.id }} className="mt-1">
           <h3 className="font-display text-lg font-semibold leading-tight transition-colors group-hover:text-primary">

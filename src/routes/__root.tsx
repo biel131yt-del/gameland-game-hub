@@ -130,7 +130,7 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
-  const products = Route.useLoaderData();
+  const { products } = Route.useLoaderData();
   const inAdmin = useRouterState({ select: (state) => state.location.pathname.replace(/\/$/, "") === "/admin" });
 
   if (inAdmin) return <QueryClientProvider client={queryClient}><Outlet /></QueryClientProvider>;

@@ -1,19 +1,19 @@
-export type CategoryId = "consoles" | "jogos" | "controles" | "acessorios" | "retro";
+export type CategoryId = string;
+export type Category = { id: CategoryId; label: string; image: string; tagline: string; position: number };
 
-export const CATEGORIES: { id: CategoryId; label: string; image: string; tagline: string }[] = [
-  { id: "consoles", label: "Consoles", image: "/products/console-home.jpg", tagline: "Nova geração" },
-  { id: "jogos", label: "Jogos", image: "/products/games-stack.jpg", tagline: "Lançamentos e clássicos" },
-  { id: "controles", label: "Controles", image: "/products/controller.jpg", tagline: "Domine a partida" },
-  { id: "acessorios", label: "Acessórios", image: "/products/headset.jpg", tagline: "Setup completo" },
-  { id: "retro", label: "Retrô", image: "/products/console-retro.jpg", tagline: "Nostalgia raiz" },
+export const SAMPLE_CATEGORIES: Category[] = [
+  { id: "consoles", label: "Consoles", image: "/products/console-home.jpg", tagline: "Nova geração", position: 10 },
+  { id: "jogos", label: "Jogos", image: "/products/games-stack.jpg", tagline: "Lançamentos e clássicos", position: 20 },
+  { id: "controles", label: "Controles", image: "/products/controller.jpg", tagline: "Domine a partida", position: 30 },
+  { id: "acessorios", label: "Acessórios", image: "/products/headset.jpg", tagline: "Setup completo", position: 40 },
+  { id: "retro", label: "Retrô", image: "/products/console-retro.jpg", tagline: "Nostalgia raiz", position: 50 },
 ];
-
-export const CATEGORY_IDS = CATEGORIES.map((c) => c.id);
 
 export type Product = {
   id: string;
   name: string;
   category: CategoryId;
+  categoryLabel?: string;
   price: number; // cents
   oldPrice: number | null;
   image: string;
@@ -159,8 +159,8 @@ export const SAMPLE_PRODUCTS: Product[] = [
   },
 ];
 
-export function categoryLabel(id: CategoryId): string {
-  return CATEGORIES.find((c) => c.id === id)?.label ?? id;
+export function categoryLabel(id: CategoryId, categories = SAMPLE_CATEGORIES): string {
+  return categories.find((c) => c.id === id)?.label ?? id;
 }
 
 export function slugify(text: string): string {

@@ -8,7 +8,7 @@ import {
   sessionCookie,
   usernameFrom,
 } from "./admin-auth.server";
-import { CATEGORIES, slugify } from "./products";
+import { slugify } from "./products";
 import { currentMonth, monthRange } from "./money";
 import { EXPENSE_CATEGORIES, SALE_STATUSES } from "./orders";
 import { handleError, jsonObject, recordSale, respond, uuid } from "./sales-api.server";
@@ -70,9 +70,9 @@ async function saveProduct(data: Record<string, unknown>, actor: Account) {
   const name = field(data["name"], 120, true);
   const creating = data["id"] === undefined;
   const id = creating ? idFrom(slugify(name)) : idFrom(data["id"]);
-  const category = field(data["category"], 16, true);
-  if (!CATEGORIES.some((entry) => entry.id === category))
-    throw new PanelError("Categoria inválida.");
+  const category = field(data["category"], 60, true);
+  if (!(await db`select id from categories where id = ${category}`).length)
+    throw new PanelError("Escolha uma categoria disponível.");
   const condition = data["condition"];
   if (condition !== "Novo" && condition !== "Seminovo") throw new PanelError("Condição inválida.");
   const price = integer(data["price"], 0, 100_000_000);
@@ -122,6 +122,72 @@ async function saveProduct(data: Record<string, unknown>, actor: Account) {
   return { id };
 }
 
+async function saveCategory(data: Record<string, unknown>) {
+  const db = adminDb();
+  const label = field(data["label"], 60, true);
+  const creating = data["id"] === undefined;
+  const id = creating ? idFrom(slugify(label)) : idFrom(data["id"]);
+  const position = integer(data["position"], 0, 10000);
+  const tagline = field(data["tagline"], 120);
+  const photo = photoFrom(data);
+  const uploadedPath = `/api/category-photo/${id}`;
+  const image = photo ? `${uploadedPath}?v=${crypto.randomUUID()}` : field(data["image"], 450);
+  const keepsUpload =
+    image.startsWith(`${uploadedPath}?v=`) &&
+    /^[a-f0-9-]{36}$/.test(image.slice(uploadedPath.length + 3));
+  if (
+    image &&
+    !keepsUpload &&
+    !/^\/products\/[a-z0-9._-]+$/i.test(image) &&
+    !/^https:\/\/[^\s]+$/i.test(image)
+  ) {
+    throw new PanelError("Informe uma URL HTTPS ou envie a foto.");
+  }
+  const write = creating
+    ? db`insert into categories (id,label,tagline,image,position)
+        values (${id},${label},${tagline},${image},${position}) returning id`
+    : db`update categories set label=${label}, tagline=${tagline}, image=${image}, position=${position}
+        where id=${id} returning id`;
+  const queries = [write];
+  if (photo) {
+    queries.push(db`insert into category_images (category_id,mime,data_base64) values (${id},${photo.mime},${photo.encoded})
+      on conflict (category_id) do update set mime=excluded.mime,data_base64=excluded.data_base64`);
+  } else if (!keepsUpload) {
+    queries.push(db`delete from category_images where category_id=${id}`);
+  }
+  const [saved] = await db.transaction(queries);
+  if (!saved?.length) throw new PanelError("Categoria não encontrada.", 404);
+  return { id };
+}
+
+async function deleteCategory(data: Record<string, unknown>) {
+  const db = adminDb();
+  const id = idFrom(data["id"]);
+  const destination = field(data["destination"], 60);
+  if (destination === id) throw new PanelError("Escolha outra categoria.");
+  if (destination && !(await db`select id from categories where id=${destination}`).length) {
+    throw new PanelError("A categoria de destino não está mais disponível.", 409);
+  }
+
+  try {
+    const queries = destination
+      ? [db`update products set category=${destination},updated_at=now() where category=${id}`]
+      : [];
+    queries.push(db`delete from categories where id=${id} returning id`);
+    const results = await db.transaction(queries);
+    if (!results.at(-1)?.length) throw new PanelError("Categoria não encontrada.", 404);
+    return { ok: true };
+  } catch (error) {
+    if (error && typeof error === "object" && "code" in error && error.code === "23503") {
+      throw new PanelError(
+        "Escolha uma categoria válida para transferir os produtos antes de remover.",
+        409,
+      );
+    }
+    throw error;
+  }
+}
+
 export async function getAdmin(request: Request) {
   try {
     const account = await readAccount(request);
@@ -151,7 +217,19 @@ export async function getAdmin(request: Request) {
           : await db`select id, name, category, stock, min_stock, image_url, active, price_cents from products order by active desc, name`;
       const movements = await db`select sm.created_at, p.name, sm.delta, sm.reason
         from stock_movements sm join products p on p.id = sm.product_id order by sm.created_at desc limit 30`;
-      return respond({ products, movements });
+      const categories =
+        await db`select id, label, tagline, image, position from categories order by position, label, id`;
+      return respond({ products, movements, categories });
+    }
+    if (view === "categories") {
+      ownerOnly(account);
+      return respond({
+        categories: await db`
+        select c.id, c.label, c.tagline, c.image, c.position, count(p.id)::int as "productCount"
+        from categories c left join products p on p.category = c.id
+        group by c.id order by c.position, c.label, c.id
+      `,
+      });
     }
     if (view === "team") {
       ownerOnly(account);
@@ -240,6 +318,8 @@ export async function postAdmin(request: Request) {
 
     ownerOnly(account);
     if (action === "product") return respond(await saveProduct(data, account));
+    if (action === "category") return respond(await saveCategory(data));
+    if (action === "category-delete") return respond(await deleteCategory(data));
     if (action === "expense") {
       const category = field(data["category"], 60, true);
       if (!EXPENSE_CATEGORIES.some((option) => option === category))

@@ -23,3 +23,4 @@ O acesso fica em `/admin` na Vercel. No Sites, esse caminho abre o painel hosped
 Aplique `db/admin-schema.sql` após o schema inicial. Em produção, configure `ADMIN_DATABASE_URL` como segredo separado da conexão da vitrine. Use um papel de aplicação dedicado com acesso às tabelas de administração e às funções da migração. O papel da vitrine precisa executar apenas a função de registro de pedidos e consultar o catálogo e as fotos.
 
 Pedidos preparados na vitrine entram como pendentes. Concluir uma venda baixa o estoque. Cancelar ou reabrir uma venda concluída devolve as unidades. O WhatsApp continua sendo o canal para confirmar pagamento e entrega.
+`db/categories-schema.sql` migra as cinco categorias iniciais para o Neon. Em Categorias, o dono pode alterar nome, descrição, ordem e foto. Ao remover uma categoria com produtos, escolha um destino para transferi-los.

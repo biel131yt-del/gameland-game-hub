@@ -13,7 +13,7 @@ import { categoryLabel } from "@/lib/products";
 export const Route = createFileRoute("/produto/$id")({
   loader: async ({ params, parentMatchPromise }) => {
     const parent = await parentMatchPromise;
-    const products = parent?.loaderData ?? (await loadCatalog());
+    const { products } = parent?.loaderData ?? (await loadCatalog());
     const product = products.find((entry) => entry.id === params.id);
     if (!product) throw notFound();
     const related = products
@@ -78,7 +78,7 @@ function ProductPage() {
 
         <div className="enter-up flex flex-col" style={{ animationDelay: "120ms" }}>
           <p className="text-sm font-semibold uppercase tracking-widest text-accent">
-            {categoryLabel(product.category)} · {product.condition}
+            {product.categoryLabel ?? categoryLabel(product.category)} · {product.condition}
           </p>
           <h1 className="mt-2 font-display text-4xl font-bold uppercase leading-tight sm:text-5xl">
             {product.name}
