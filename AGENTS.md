@@ -28,3 +28,7 @@ use the editor.
   own key and store it in Secrets.
 - **Secrets.** Lovable manages them. Do not put secret values in the repo.
 <!-- LOVABLE:END -->
+
+## Project rules
+- Store catalog lives in `src/lib/products.ts` (static data, prices in integer cents); no backend or Shopify — checkout builds a wa.me link in `src/lib/cart.ts`. Why: user wants a simple store whose orders go to WhatsApp.
+- Store contact details (WhatsApp, Instagram) come only from `src/lib/store-config.ts`. Why: one place to change them.
