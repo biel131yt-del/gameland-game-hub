@@ -9,7 +9,7 @@ export function SiteFooter() {
       <div className="mx-auto grid max-w-7xl gap-10 px-4 py-12 sm:px-6 md:grid-cols-3">
         <div>
           <p className="font-display text-2xl font-bold uppercase tracking-wider">
-            Game<span className="text-primary">land</span>
+            Game<span className="text-primary">Landia</span>
           </p>
           <p className="mt-3 max-w-xs text-sm text-muted-foreground">
             Consoles, jogos, controles e relíquias retrô. Escolha, monte seu carrinho e finalize
@@ -64,7 +64,7 @@ export function SiteFooter() {
         </div>
       </div>
       <p className="border-t border-border py-5 text-center text-xs text-muted-foreground">
-        © {new Date().getFullYear()} Gameland. Todos os direitos reservados.
+        © {new Date().getFullYear()} GameLandia. Todos os direitos reservados.
       </p>
     </footer>
   );

@@ -7,13 +7,13 @@ import { Label } from "@/components/ui/label";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import { Textarea } from "@/components/ui/textarea";
 import { buildWhatsAppMessage, buildWhatsAppUrl, formatBRL, type CustomerInfo } from "@/lib/cart";
-import { getProduct } from "@/lib/products";
+import type { Product } from "@/lib/products";
 import { STORE } from "@/lib/store-config";
 import { cn } from "@/lib/utils";
 
 import { useCart } from "./cart-provider";
 
-export function CartSheet() {
+export function CartSheet({ products }: { products: Product[] }) {
   const { items, total, isOpen, setOpen, setQuantity, remove, clear } = useCart();
   const [name, setName] = useState("");
   const [delivery, setDelivery] = useState<CustomerInfo["delivery"]>("retirada");
@@ -53,7 +53,7 @@ export function CartSheet() {
             <div className="flex-1 overflow-y-auto">
               <ul className="divide-y divide-border">
                 {items.map((item) => {
-                  const product = getProduct(item.id);
+                  const product = products.find((entry) => entry.id === item.id);
                   return (
                     <li key={item.id} className="flex gap-3 p-4">
                       {product && (

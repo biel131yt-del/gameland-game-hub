@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { Gamepad2, Instagram, ShoppingBag } from "lucide-react";
+import { Instagram, ShoppingBag } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { STORE } from "@/lib/store-config";
@@ -39,11 +39,15 @@ export function SiteHeader() {
       </div>
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6">
         <Link to="/" className="group flex items-center gap-2">
-          <span className="grid size-9 place-items-center rounded-md bg-primary text-primary-foreground transition-transform group-hover:rotate-12">
-            <Gamepad2 className="size-5" />
-          </span>
-          <span className="font-display text-xl font-bold uppercase tracking-wider">
-            Game<span className="text-primary">land</span>
+          <img
+            src="/gamelandia-mark.webp"
+            alt=""
+            width={48}
+            height={48}
+            className="size-10 shrink-0 object-contain transition-transform group-hover:scale-105 sm:size-12"
+          />
+          <span className="font-display text-base font-bold tracking-wide sm:text-xl">
+            Game<span className="text-primary">Landia</span>
           </span>
         </Link>
 
@@ -65,7 +69,7 @@ export function SiteHeader() {
             href={STORE.instagramUrl}
             target="_blank"
             rel="noreferrer"
-            aria-label="Instagram da Gameland"
+            aria-label="Instagram da GameLandia"
             className="grid size-10 place-items-center rounded-md text-muted-foreground transition-colors hover:text-accent"
           >
             <Instagram className="size-5" />

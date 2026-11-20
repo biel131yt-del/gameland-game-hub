@@ -1,195 +1,21 @@
-// Server-only access to the user's Neon database through the Lovable connector gateway.
-const GATEWAY_URL = "https://connector-gateway.lovable.dev/neon";
+import { neon } from "@neondatabase/serverless";
 
-export function isNeonConfigured(): boolean {
-  return Boolean(process.env["LOVABLE_API_KEY"] && process.env["NEON_API_KEY"]);
-}
+import { SAMPLE_PRODUCTS, type Product } from "./products";
 
-// Env is read per request inside the server boundary.
-function gatewayHeaders(): Record<string, string> {
-  const LOVABLE_API_KEY = process.env["LOVABLE_API_KEY"];
-  const NEON_API_KEY = process.env["NEON_API_KEY"]; // connection key (lovc_…), not a Neon key
-  if (!LOVABLE_API_KEY || !NEON_API_KEY) {
-    throw new Error("Missing LOVABLE_API_KEY or NEON_API_KEY");
+export async function readCatalog(): Promise<Product[]> {
+  const connectionString = process.env["DATABASE_URL"];
+  if (!connectionString) {
+    if (import.meta.env.DEV) return SAMPLE_PRODUCTS;
+    throw new Error("DATABASE_URL must be configured.");
   }
-  return {
-    Authorization: `Bearer ${LOVABLE_API_KEY}`,
-    "X-Connection-Api-Key": NEON_API_KEY,
-    "Content-Type": "application/json",
-  };
+
+  const sql = neon(connectionString);
+  const rows = await sql`
+    select id, name, category, price_cents as price, old_price_cents as "oldPrice",
+           image_url as image, condition, badge, featured, description, specs, stock
+    from products
+    where active
+    order by featured desc, created_at, id
+  `;
+  return rows as Product[];
 }
-
-export type Statement = { query: string; params?: unknown[] };
-export type NeonResult = {
-  rows: Record<string, unknown>[];
-  fields: { name: string; dataTypeID: number }[];
-  rowCount: number | null;
-  command: string;
-};
-export type NeonBatchResult = { results: NeonResult[] };
-type NeonResponse = { status: number; retryAfter: string | null; text: string; json: any; elapsedMs: number };
-type NeonErrorKind =
-  | "stale_connection"
-  | "endpoint_blocked"
-  | "maybe_committed"
-  | "too_large"
-  | "rate_limited"
-  | "unavailable"
-  | "input"
-  | "statement"
-  | "rejected";
-export type NeonError = Error & { status: number; code?: string; body: string; kind: NeonErrorKind };
-
-const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
-const toBody = (q: string | Statement[], params: unknown[]) =>
-  typeof q === "string" ? { query: q, params } : { queries: q };
-
-async function neonFetch(
-  body: unknown,
-  headers: Record<string, string>,
-  signal?: AbortSignal,
-): Promise<NeonResponse> {
-  const base = gatewayHeaders();
-  const started = Date.now();
-  try {
-    const res = await fetch(`${GATEWAY_URL}/sql`, {
-      method: "POST",
-      headers: { ...base, ...headers },
-      body: JSON.stringify(body),
-      signal: signal ?? null,
-    });
-    const text = await res.text();
-    let json: any;
-    try {
-      json = JSON.parse(text);
-    } catch {
-      json = {};
-    }
-    return { status: res.status, retryAfter: res.headers.get("Retry-After"), text, json, elapsedMs: Date.now() - started };
-  } catch (err: any) {
-    return { status: 0, retryAfter: null, text: "", json: { message: String(err?.name ?? err) }, elapsedMs: Date.now() - started };
-  }
-}
-
-const isStale = (json: any) =>
-  json?.code === "28P01" ||
-  json?.code === "28000" ||
-  /^(password authentication failed|Control plane request failed: endpoint cannot be found)/.test(json?.message ?? "");
-const isEndpointBlocked = (json: any) =>
-  /^(The endpoint has been disabled|Control plane request failed: endpoint is)/.test(json?.message ?? "");
-
-function neonFailure(r: NeonResponse, write: boolean): NeonError {
-  const { status, json, elapsedMs } = r;
-  let hint: string;
-  let kind: NeonErrorKind;
-  if (isStale(json)) {
-    kind = "stale_connection";
-    hint = "the stored connection string no longer works: stop retrying; only the connection's creator can paste a new one in Lovable connector settings";
-  } else if (isEndpointBlocked(json)) {
-    kind = "endpoint_blocked";
-    hint = "Neon is not serving this endpoint (disabled, or a quota or billing limit): log Neon's message; never retry unchanged";
-  } else if (status === 413) {
-    kind = "too_large";
-    hint = "request too large: split bulk writes into several `queries` batches; never retry unchanged";
-  } else if (status === 507) {
-    kind = "too_large";
-    hint = "result too large: add LIMIT and paginate; never retry unchanged";
-  } else if (status === 429) {
-    kind = "rate_limited";
-    hint = "Lovable gateway rate limit (per project), not Neon; the statement was not forwarded: batch with `queries`, cache, re-run after Retry-After";
-  } else if (status === 0 || status === 502) {
-    const slow = /^(TimeoutError|AbortError)/.test(json?.message ?? "") || elapsedMs >= 25_000;
-    kind = write ? "maybe_committed" : slow ? "statement" : "unavailable";
-    hint = slow
-      ? "too slow: add an index, LIMIT, paginate, or move the work into Neon; never retry unchanged"
-      : "the gateway could not reach Neon's regional proxy, or the network failed: see status.neon.tech and retry later";
-    if (write) hint = `the statement may have committed: check the row before re-running; ${hint}`;
-  } else if (json?.code === "42P01") {
-    kind = "statement";
-    hint = "table renamed or removed: stop";
-  } else if (/^2[23]/.test(json?.code ?? "")) {
-    kind = "input";
-    hint = "the values break a constraint or a type (unique, foreign key, check, cast): validate the input; never retry unchanged";
-  } else if (/^Control plane request failed/.test(json?.message ?? "")) {
-    kind = "unavailable";
-    hint = "Neon control-plane outage, not the statement and not the string: see status.neon.tech and retry later (reads only)";
-  } else if (status === 400) {
-    kind = "statement";
-    hint = "fix the statement; never retry unchanged";
-  } else if (status >= 500) {
-    kind = "unavailable";
-    hint = 'Neon error (a bare "Control plane request failed" is a Neon control-plane outage; a persistent 500 can be plan-quota exhaustion): log it';
-  } else {
-    kind = "rejected";
-    hint = "gateway rejection, not retryable: the request must be exactly POST /sql on a connection linked to this project";
-  }
-  const code = json?.code || json?.type;
-  return Object.assign(
-    new Error(`Neon ${status}${code ? ` ${code}` : ""}: ${json?.message ?? r.text.slice(0, 300)} (${hint})`),
-    { status, code, body: r.text, kind },
-  );
-}
-
-/** Portuguese message shown to the store team; the raw error is only logged. */
-export function neonUserMessage(err: unknown): string {
-  switch ((err as Partial<NeonError>)?.kind) {
-    case "stale_connection":
-      return "A conexão com o banco Neon não funciona mais. O dono precisa atualizar a conexão nas configurações de conectores.";
-    case "endpoint_blocked":
-      return "O banco Neon está indisponível no momento. Verifique o banco e o plano no Neon.";
-    case "maybe_committed":
-      return "A alteração pode ter sido salva. Atualize a página para conferir antes de tentar de novo.";
-    case "too_large":
-      return "Pedido grande demais. Tente com menos itens.";
-    case "rate_limited":
-      return "O banco está ocupado. Tente de novo em instantes.";
-    case "unavailable":
-      return "O banco está temporariamente indisponível. Tente de novo em instantes.";
-    case "input":
-      return "O banco recusou esses valores. Confira os dados e tente de novo.";
-    default:
-      if ((err as Partial<NeonError>)?.code === "42P01") {
-        return "As tabelas da loja ainda não foram criadas no Neon.";
-      }
-      return "Não foi possível concluir a operação no banco.";
-  }
-}
-
-export async function neonQuery<T = NeonResult>(
-  query: string | Statement[],
-  params: unknown[] = [],
-  headers: Record<string, string> = {},
-): Promise<T> {
-  const deadline = Date.now() + 30_000;
-  const left = () => Math.max(0, deadline - Date.now());
-  let retried429 = false;
-  for (let attempt = 1; ; attempt++) {
-    const r = await neonFetch(toBody(query, params), headers, AbortSignal.timeout(Math.max(1, left())));
-    if (r.status >= 200 && r.status < 300) return r.json as T;
-    if (isStale(r.json) || isEndpointBlocked(r.json)) throw neonFailure(r, false);
-    if (r.status === 429 && !retried429) {
-      retried429 = true;
-      const seconds = Math.min(Math.max(Number(r.retryAfter) || 1, 1), 15);
-      await sleep(Math.min(seconds * 1000, left()));
-      continue;
-    }
-    const backoff = 500 * 2 ** (attempt - 1);
-    if ((r.status === 500 || r.status === 503) && attempt < 3 && backoff < left()) {
-      await sleep(backoff);
-      continue;
-    }
-    throw neonFailure(r, false);
-  }
-}
-
-export async function neonExecute<T = NeonResult>(
-  query: string | Statement[],
-  params: unknown[] = [],
-  headers: Record<string, string> = {},
-): Promise<T> {
-  const r = await neonFetch(toBody(query, params), headers);
-  if (r.status >= 200 && r.status < 300) return r.json as T;
-  throw neonFailure(r, true);
-}
-
-export const num = (v: unknown): number => (v == null ? 0 : Number(v));

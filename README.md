@@ -1,24 +1,17 @@
-# GameLand Game Hub
+# GameLandia
 
-modelo de site para  divulgação, vitrine e carrinho site dinamico com animações, para venda de videogames, jogos para esta empresa; https://www.instagram.com/gameland.01/
+Vitrine de consoles, jogos, controles e itens retrô com carrinho e finalização pelo WhatsApp.
 
-This project was built with [Lovable](https://lovable.dev).
+## Desenvolvimento
 
-## Build with Lovable
+Use Node.js 24 e execute `npm ci`, `npm run dev` e `npm test`.
+Sem `DATABASE_URL`, o servidor de desenvolvimento mostra um catálogo de exemplo.
 
-Continue developing this project in the [Lovable editor](https://lovable.dev/projects/45eec2e9-e9f7-5970-863a-818c18f2d79b).
+## Publicação
 
-- **Ship faster**: describe what you want to build and Lovable handles the code.
-- **Stay in sync**: every change made in Lovable is committed straight to this repository.
-- **Full ownership**: this code is yours. Push to `main` on GitHub and your changes sync back into Lovable, ready for your next prompt.
+Aplique `db/neon-schema.sql` em um banco Neon novo para criar as tabelas e carregar o catálogo inicial.
+Configure `DATABASE_URL` no ambiente do servidor. A vitrine precisa apenas de acesso de leitura aos produtos.
+Use o preset TanStack Start na Vercel e `npm run build` para compilar.
+Para Sites, compile com `npm run build:sites` e configure a mesma variável como segredo de runtime.
 
-## Development
-
-Prefer working locally? You need Node.js and npm — [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating).
-
-```sh
-git clone <this-repository-url>
-cd <repository-name>
-npm i
-npm run dev
-```
+Edite os contatos da loja em `src/lib/store-config.ts`. Pedidos são encaminhados pelo WhatsApp.

@@ -27,7 +27,7 @@ describe("carrinho", () => {
     expect(items).toHaveLength(0);
   });
 
-  it("envia o pedido para o WhatsApp da Gameland com o total", () => {
+  it("envia o pedido para o WhatsApp da GameLandia com o total", () => {
     const items = addItem(addItem([], ps5), controle, 2);
     const msg = buildWhatsAppMessage(items, { name: "Ana", delivery: "retirada" });
     const url = buildWhatsAppUrl(STORE.whatsappNumber, msg);

@@ -7,18 +7,24 @@ import { useCart } from "@/components/store/cart-provider";
 import { ProductCard } from "@/components/store/product-card";
 import { Reveal } from "@/components/store/reveal";
 import { formatBRL } from "@/lib/cart";
-import { categoryLabel, getProduct, PRODUCTS } from "@/lib/products";
+import { loadCatalog } from "@/lib/catalog";
+import { categoryLabel } from "@/lib/products";
 
 export const Route = createFileRoute("/produto/$id")({
-  loader: ({ params }) => {
-    const product = getProduct(params.id);
+  loader: async ({ params, parentMatchPromise }) => {
+    const parent = await parentMatchPromise;
+    const products = parent?.loaderData ?? (await loadCatalog());
+    const product = products.find((entry) => entry.id === params.id);
     if (!product) throw notFound();
-    return { product };
+    const related = products
+      .filter((entry) => entry.category === product.category && entry.id !== product.id)
+      .slice(0, 3);
+    return { product, related };
   },
   head: ({ loaderData }) => {
     const p = loaderData?.product;
-    const title = p ? `${p.name} — Gameland` : "Produto — Gameland";
-    const description = p ? `${p.description} Por ${formatBRL(p.price)}.` : "Produto da Gameland.";
+    const title = p ? `${p.name} — GameLandia` : "Produto — GameLandia";
+    const description = p ? `${p.description} Por ${formatBRL(p.price)}.` : "Produto da GameLandia.";
     return {
       meta: [
         { title },
@@ -42,10 +48,9 @@ export const Route = createFileRoute("/produto/$id")({
 });
 
 function ProductPage() {
-  const { product } = Route.useLoaderData();
+  const { product, related } = Route.useLoaderData();
   const { add, setOpen } = useCart();
   const [qty, setQty] = useState(1);
-  const related = PRODUCTS.filter((p) => p.category === product.category && p.id !== product.id).slice(0, 3);
 
   return (
     <div className="mx-auto max-w-7xl px-4 pb-24 pt-32 sm:px-6">

@@ -5,7 +5,7 @@ import { STORE } from "@/lib/store-config";
 export function WhatsAppFloat() {
   return (
     <a
-      href={`https://wa.me/${STORE.whatsappNumber}?text=${encodeURIComponent("Olá, Gameland! Vim pelo site.")}`}
+      href={`https://wa.me/${STORE.whatsappNumber}?text=${encodeURIComponent("Olá, GameLandia! Vim pelo site.")}`}
       target="_blank"
       rel="noreferrer"
       aria-label="Conversar no WhatsApp"

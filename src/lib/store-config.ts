@@ -1,5 +1,5 @@
 export const STORE = {
-  name: "Gameland",
+  name: "GameLandia",
   whatsappNumber: "5551999400656",
   whatsappDisplay: "(51) 99940-0656",
   instagramUrl: "https://www.instagram.com/gameland.01/",

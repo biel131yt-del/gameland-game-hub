@@ -25,7 +25,7 @@ export type Product = {
   stock: number;
 };
 
-// Shown while the Neon database is not connected (or unreachable).
+// Example catalog for local development without a database.
 export const SAMPLE_PRODUCTS: Product[] = [
   {
     id: "playstation-5-slim",
@@ -171,11 +171,4 @@ export function slugify(text: string): string {
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "")
     .slice(0, 60);
-}
-
-// Storefront catalog until the Neon-backed product list is wired in.
-export const PRODUCTS: Product[] = SAMPLE_PRODUCTS;
-
-export function getProduct(id: string): Product | undefined {
-  return PRODUCTS.find((p) => p.id === id);
 }

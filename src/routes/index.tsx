@@ -1,23 +1,23 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, getRouteApi, Link } from "@tanstack/react-router";
 import { ArrowRight, BadgeCheck, MessageCircle, Repeat, ShoppingCart, Sparkles } from "lucide-react";
 
 import heroImage from "@/assets/hero-gaming.jpg";
 import { LocationSection } from "@/components/store/location-section";
 import { ProductCard } from "@/components/store/product-card";
 import { Reveal } from "@/components/store/reveal";
-import { CATEGORIES, PRODUCTS } from "@/lib/products";
+import { CATEGORIES } from "@/lib/products";
 import { STORE } from "@/lib/store-config";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Gameland — Consoles, jogos e retrô com pedido no WhatsApp" },
+      { title: "GameLandia — Consoles, jogos e retrô com pedido no WhatsApp" },
       {
         name: "description",
         content:
-          "Vitrine da Gameland: PlayStation, Nintendo Switch, jogos, controles e clássicos retrô. Monte seu carrinho e finalize pelo WhatsApp.",
+          "Vitrine da GameLandia: PlayStation, Nintendo Switch, jogos, controles e clássicos retrô. Monte seu carrinho e finalize pelo WhatsApp.",
       },
-      { property: "og:title", content: "Gameland — Seu próximo nível começa aqui" },
+      { property: "og:title", content: "GameLandia — Seu próximo nível começa aqui" },
       {
         property: "og:description",
         content: "Consoles, jogos, controles e retrô. Monte o carrinho e peça pelo WhatsApp.",
@@ -44,42 +44,38 @@ const PERKS = [
 ];
 
 function Index() {
-  const featured = PRODUCTS.filter((p) => p.featured);
+  const products = getRouteApi("__root__").useLoaderData();
+  const featured = products.filter((p) => p.featured);
 
   return (
     <>
       {/* Hero */}
-      <section className="relative flex min-h-[92vh] items-center overflow-hidden pt-16">
+      <section className="relative flex min-h-svh items-center overflow-hidden pb-14 pt-28 sm:pb-20 lg:pt-24">
         <img
           src={heroImage}
-          alt="Console e controle iluminados por neon verde e coral"
-          className="absolute inset-0 size-full object-cover object-[70%_center]"
+          alt=""
+          className="absolute inset-0 size-full object-cover object-[70%_center] opacity-30"
           width={1672}
           height={941}
         />
         <div className="hero-fade absolute inset-0" />
         <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-background to-transparent" />
-        <div className="relative mx-auto w-full max-w-7xl px-4 sm:px-6">
-          <div className="max-w-2xl">
-            <p className="enter-up inline-flex items-center gap-2 rounded-full border border-primary/40 bg-background/60 px-3 py-1 text-xs font-semibold uppercase tracking-widest text-primary backdrop-blur">
-              <span className="size-2 animate-glow-pulse rounded-full bg-primary" /> Loja de videogames
-            </p>
+        <div className="relative mx-auto grid w-full max-w-7xl items-center gap-4 px-4 sm:gap-8 sm:px-6 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
+          <div className="enter-up order-last mx-auto w-full max-w-xl text-center lg:order-first lg:mx-0 lg:text-left">
             <h1
-              className="enter-up mt-6 font-display text-5xl font-bold uppercase leading-[0.95] sm:text-7xl"
-              style={{ animationDelay: "120ms" }}
+              className="font-display text-[clamp(2.25rem,5.5vw,4.75rem)] font-bold uppercase leading-[0.95]"
             >
               Seu próximo <span className="text-primary">nível</span>
               <br />
               começa <span className="text-outline">aqui</span>
             </h1>
             <p
-              className="enter-up mt-6 max-w-lg text-lg text-muted-foreground"
-              style={{ animationDelay: "240ms" }}
+              className="mt-5 max-w-lg text-base text-foreground/80 sm:mx-auto sm:text-lg lg:mx-0"
             >
               Consoles, jogos, controles e relíquias retrô. Monte seu carrinho e finalize o pedido
-              direto no WhatsApp da Gameland.
+              direto no WhatsApp da GameLandia.
             </p>
-            <div className="enter-up mt-8 flex flex-wrap gap-3" style={{ animationDelay: "360ms" }}>
+            <div className="mt-7 flex flex-wrap justify-center gap-3 lg:justify-start">
               <Link
                 to="/loja"
                 className="group inline-flex h-12 items-center gap-2 rounded-lg bg-primary px-6 font-semibold text-primary-foreground shadow-glow transition-transform hover:scale-105"
@@ -97,6 +93,14 @@ function Index() {
               </a>
             </div>
           </div>
+          <img
+            src="/gamelandia-logo.webp"
+            alt="GameLandia. Onde os mundos se conectam"
+            width={1508}
+            height={925}
+            fetchPriority="high"
+            className="enter-up mx-auto h-auto w-full max-w-[42rem] drop-shadow-[0_14px_30px_rgba(3,6,13,0.58)]"
+          />
         </div>
       </section>
 
@@ -151,7 +155,7 @@ function Index() {
           <Reveal className="flex flex-wrap items-end justify-between gap-4">
             <div>
               <p className="font-display text-sm font-semibold uppercase tracking-widest text-accent">Destaques</p>
-              <h2 className="mt-2 font-display text-4xl font-bold uppercase sm:text-5xl">Em alta na Gameland</h2>
+              <h2 className="mt-2 font-display text-4xl font-bold uppercase sm:text-5xl">Em alta na GameLandia</h2>
             </div>
             <Link to="/loja" className="group inline-flex items-center gap-2 font-semibold text-primary">
               Ver tudo <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" />
@@ -218,7 +222,7 @@ function Index() {
                 Novidades chegam primeiro no Instagram
               </h2>
               <p className="relative mt-3 text-muted-foreground">
-                Siga a Gameland para ver lançamentos, promoções e os achados retrô da semana.
+                Siga a GameLandia para ver lançamentos, promoções e os achados retrô da semana.
               </p>
               <a
                 href={STORE.instagramUrl}

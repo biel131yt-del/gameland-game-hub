@@ -1,10 +1,10 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, getRouteApi, Link } from "@tanstack/react-router";
 import { Search } from "lucide-react";
 import { useMemo, useState } from "react";
 
 import { ProductCard } from "@/components/store/product-card";
 import { Reveal } from "@/components/store/reveal";
-import { CATEGORIES, PRODUCTS, type CategoryId } from "@/lib/products";
+import { CATEGORIES, type CategoryId } from "@/lib/products";
 import { cn } from "@/lib/utils";
 
 type LojaSearch = { categoria?: CategoryId };
@@ -16,12 +16,12 @@ export const Route = createFileRoute("/loja")({
   },
   head: () => ({
     meta: [
-      { title: "Loja Gameland — Consoles, jogos, controles e retrô" },
+      { title: "Loja GameLandia — Consoles, jogos, controles e retrô" },
       {
         name: "description",
-        content: "Veja todos os produtos da Gameland e monte seu carrinho para pedir pelo WhatsApp.",
+        content: "Veja todos os produtos da GameLandia e monte seu carrinho para pedir pelo WhatsApp.",
       },
-      { property: "og:title", content: "Loja Gameland — Vitrine completa" },
+      { property: "og:title", content: "Loja GameLandia — Vitrine completa" },
       {
         property: "og:description",
         content: "Consoles, jogos, controles, acessórios e retrô em um só lugar.",
@@ -37,12 +37,13 @@ function LojaPage() {
   const { categoria } = Route.useSearch();
   const [query, setQuery] = useState("");
 
+  const catalog = getRouteApi("__root__").useLoaderData();
   const products = useMemo(() => {
     const q = query.trim().toLowerCase();
-    return PRODUCTS.filter(
+    return catalog.filter(
       (p) => (!categoria || p.category === categoria) && (!q || p.name.toLowerCase().includes(q)),
     );
-  }, [categoria, query]);
+  }, [catalog, categoria, query]);
 
   const chip =
     "rounded-full border px-4 py-2 text-sm font-semibold transition-all hover:border-primary";
@@ -52,7 +53,7 @@ function LojaPage() {
       <div className="enter-up">
         <p className="font-display text-sm font-semibold uppercase tracking-widest text-accent">Vitrine</p>
         <h1 className="mt-2 font-display text-5xl font-bold uppercase sm:text-6xl">
-          Loja <span className="text-primary">Gameland</span>
+          Loja <span className="text-primary">GameLandia</span>
         </h1>
       </div>
 

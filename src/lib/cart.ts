@@ -49,7 +49,7 @@ export function formatBRL(cents: number): string {
 
 export function buildWhatsAppMessage(items: CartItem[], customer: CustomerInfo): string {
   const lines = [
-    "Olá, Gameland! Quero fazer este pedido:",
+    "Olá, GameLandia! Quero fazer este pedido:",
     "",
     ...items.map(
       (i) => `• ${i.quantity}x ${i.name} — ${formatBRL(i.price * i.quantity)}`,
