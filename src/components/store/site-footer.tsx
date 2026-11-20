@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { Instagram, MessageCircle } from "lucide-react";
+import { Instagram, MapPin, MessageCircle, Plane } from "lucide-react";
 
 import { STORE } from "@/lib/store-config";
 
@@ -15,6 +15,16 @@ export function SiteFooter() {
             Consoles, jogos, controles e relíquias retrô. Escolha, monte seu carrinho e finalize
             pelo WhatsApp.
           </p>
+          <ul className="mt-4 space-y-2 text-sm">
+            <li className="inline-flex items-center gap-2 text-primary">
+              <Plane className="size-4" /> {STORE.shippingNote}
+            </li>
+            <li>
+              <a href={STORE.mapsUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground">
+                <MapPin className="size-4 text-accent" /> {STORE.city}-{STORE.state}
+              </a>
+            </li>
+          </ul>
         </div>
         <div>
           <p className="font-display text-sm font-semibold uppercase tracking-widest text-primary">

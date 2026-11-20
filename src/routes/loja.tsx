@@ -48,7 +48,7 @@ function LojaPage() {
     "rounded-full border px-4 py-2 text-sm font-semibold transition-all hover:border-primary";
 
   return (
-    <div className="mx-auto max-w-7xl px-4 pb-24 pt-28 sm:px-6">
+    <div className="mx-auto max-w-7xl px-4 pb-24 pt-36 sm:px-6">
       <div className="enter-up">
         <p className="font-display text-sm font-semibold uppercase tracking-widest text-accent">Vitrine</p>
         <h1 className="mt-2 font-display text-5xl font-bold uppercase sm:text-6xl">

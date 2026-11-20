@@ -25,6 +25,18 @@ export function SiteHeader() {
         scrolled ? "border-b border-border bg-background/85 backdrop-blur-md" : "bg-transparent",
       )}
     >
+      <div
+        className={cn(
+          "overflow-hidden bg-primary text-primary-foreground transition-all duration-300",
+          scrolled ? "max-h-0" : "max-h-10",
+        )}
+      >
+        <p className="flex h-8 items-center justify-center gap-3 text-xs font-semibold uppercase tracking-wider sm:gap-6 sm:text-sm">
+          <span><span aria-hidden>✈️</span> {STORE.shippingNote}</span>
+          <span aria-hidden className="opacity-50">•</span>
+          <span><span aria-hidden>📍</span> {STORE.city}-{STORE.state}</span>
+        </p>
+      </div>
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6">
         <Link to="/" className="group flex items-center gap-2">
           <span className="grid size-9 place-items-center rounded-md bg-primary text-primary-foreground transition-transform group-hover:rotate-12">

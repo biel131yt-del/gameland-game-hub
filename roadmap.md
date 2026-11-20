@@ -1,8 +1,8 @@
 # Roadmap
 - [x] Loja Gameland: vitrine, página de produto, carrinho, pedido via WhatsApp, animações
 - [x] Usar número de WhatsApp 5551999400656 nos pedidos
-- [ ] Seção de localização bonita: "Enviamos para todo Brasil" + "São Jerônimo-RS"
-- [ ] Conectar banco Neon e criar tabelas (produtos, vendas, gastos, estoque, equipe)
+- [x] Seção de localização bonita: "Enviamos para todo Brasil" + "São Jerônimo-RS"
+- [ ] Conectar banco Neon e criar tabelas (produtos, vendas, gastos, estoque, equipe) — BLOQUEADO: usuário recusou o cartão de conexão do Neon; painel inteiro depende disso
 - [ ] Produtos no banco (vitrine lê do banco, estoque real, esgotado)
 - [ ] Painel admin: login, resumo do mês (vendas, ganhos, gastos, lucro), gráficos
 - [ ] Papéis: dono (tudo) e funcionário (vendas e estoque, sem ganhos/gastos); dono cadastra funcionários

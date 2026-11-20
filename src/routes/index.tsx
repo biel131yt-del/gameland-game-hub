@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRight, BadgeCheck, MessageCircle, Repeat, ShoppingCart, Sparkles } from "lucide-react";
 
 import heroImage from "@/assets/hero-gaming.jpg";
+import { LocationSection } from "@/components/store/location-section";
 import { ProductCard } from "@/components/store/product-card";
 import { Reveal } from "@/components/store/reveal";
 import { CATEGORIES, PRODUCTS } from "@/lib/products";
@@ -186,8 +187,10 @@ function Index() {
         </div>
       </section>
 
+      <LocationSection />
+
       {/* Perks + Instagram */}
-      <section className="mx-auto max-w-7xl px-4 pb-24 sm:px-6">
+      <section className="mx-auto max-w-7xl px-4 py-24 sm:px-6">
         <div className="grid gap-5 lg:grid-cols-[1fr_1.1fr]">
           <div className="grid gap-4">
             {PERKS.map((perk, i) => (

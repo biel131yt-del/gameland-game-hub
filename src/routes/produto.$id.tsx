@@ -48,7 +48,7 @@ function ProductPage() {
   const related = PRODUCTS.filter((p) => p.category === product.category && p.id !== product.id).slice(0, 3);
 
   return (
-    <div className="mx-auto max-w-7xl px-4 pb-24 pt-24 sm:px-6">
+    <div className="mx-auto max-w-7xl px-4 pb-24 pt-32 sm:px-6">
       <Link to="/loja" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground">
         <ArrowLeft className="size-4" /> Voltar para a loja
       </Link>

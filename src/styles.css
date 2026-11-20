@@ -170,3 +170,26 @@
 @media (prefers-reduced-motion: reduce) {
   .reveal, .enter-up { opacity: 1; transform: none; animation: none; transition: none; }
 }
+
+/* Location section */
+.route-flow {
+  animation: route-flow 1.2s linear infinite;
+}
+@keyframes route-flow {
+  to { stroke-dashoffset: -24; }
+}
+.pin-ping {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: pin-ping 2s ease-out infinite;
+}
+.pin-ping-css {
+  animation: pin-ping 2s ease-out infinite;
+}
+@keyframes pin-ping {
+  0% { transform: scale(0.6); opacity: 0.8; }
+  100% { transform: scale(2.4); opacity: 0; }
+}
+.map-dark {
+  filter: invert(0.92) hue-rotate(180deg) saturate(0.55) brightness(0.95) contrast(0.95);
+}
