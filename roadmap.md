@@ -1,11 +1,11 @@
 # Roadmap
-- [x] Loja Gameland: vitrine, página de produto, carrinho, pedido via WhatsApp, animações
-- [x] Usar número de WhatsApp 5551999400656 nos pedidos
-- [x] Seção de localização bonita: "Enviamos para todo Brasil" + "São Jerônimo-RS"
-- [ ] Conectar banco Neon e criar tabelas (produtos, vendas, gastos, estoque, equipe) — construir tudo agora; usuário conecta o Neon depois, então rodar o db/neon-schema.sql
-- [ ] Produtos no banco (vitrine lê do banco, estoque real, esgotado)
-- [ ] Painel admin: login, resumo do mês (vendas, ganhos, gastos, lucro), gráficos
-- [ ] Papéis: dono (tudo) e funcionário (vendas e estoque, sem ganhos/gastos); dono cadastra funcionários
-- [ ] Admin: vendas (pedidos do site entram como pendentes + venda manual), baixa de estoque
-- [ ] Admin: gastos da empresa por categoria
-- [ ] Admin: gestão de estoque e produtos (cadastro, foto, custo, quantidade)
+
+- [x] Vitrine, páginas de produto, carrinho e envio do pedido pelo WhatsApp
+- [x] Localização da loja e informações sobre envios
+- [x] Catálogo, pedidos, vendas, gastos, estoque e acessos da equipe no Neon
+- [x] Estoque real na vitrine e indicação de produto esgotado
+- [x] Painel com login por usuário e senha, resumo mensal e gráfico de vendas
+- [x] Papéis de dono e funcionário e cadastro da equipe
+- [x] Pedidos do site como pendentes, venda manual e movimentação de estoque
+- [x] Registro de gastos da empresa por categoria
+- [x] Cadastro de produto, foto, custo e quantidade em estoque

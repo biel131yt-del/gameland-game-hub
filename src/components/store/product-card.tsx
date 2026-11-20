@@ -18,7 +18,7 @@ export function ProductCard({ product }: { product: Product }) {
         className="relative block aspect-square overflow-hidden bg-muted"
       >
         <img
-          src={product.image}
+          src={product.image || "/products/games-stack.jpg"}
           alt={product.name}
           loading="lazy"
           width={600}
@@ -54,7 +54,7 @@ export function ProductCard({ product }: { product: Product }) {
             )}
             <p className="font-display text-xl font-bold">{formatBRL(product.price)}</p>
           </div>
-          <button
+          {product.stock <= 0 ? <span className="text-sm font-medium text-muted-foreground">Esgotado</span> : <button
             type="button"
             aria-label={`Adicionar ${product.name} ao carrinho`}
             onClick={() => {
@@ -66,7 +66,7 @@ export function ProductCard({ product }: { product: Product }) {
             className="grid size-11 shrink-0 place-items-center rounded-lg bg-primary text-primary-foreground transition-all hover:scale-110 hover:rotate-90 active:scale-95"
           >
             <Plus className="size-5" />
-          </button>
+          </button>}
         </div>
       </div>
     </article>

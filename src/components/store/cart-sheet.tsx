@@ -1,12 +1,12 @@
 import { Minus, Plus, ShoppingBag, Trash2 } from "lucide-react";
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import { Textarea } from "@/components/ui/textarea";
-import { buildWhatsAppMessage, buildWhatsAppUrl, formatBRL, type CustomerInfo } from "@/lib/cart";
+import { buildWhatsAppMessage, buildWhatsAppUrl, formatBRL, type CartItem, type CustomerInfo } from "@/lib/cart";
 import type { Product } from "@/lib/products";
 import { STORE } from "@/lib/store-config";
 import { cn } from "@/lib/utils";
@@ -21,14 +21,45 @@ export function CartSheet({ products }: { products: Product[] }) {
   const [note, setNote] = useState("");
   const [error, setError] = useState("");
 
-  function checkout() {
+  const [submitting, setSubmitting] = useState(false);
+  const [whatsAppLink, setWhatsAppLink] = useState("");
+  const checkoutAttempt = useRef<{ payload: string; key: string } | null>(null);
+
+  async function checkout() {
     if (!name.trim()) return setError("Digite seu nome para enviar o pedido.");
     if (delivery === "entrega" && !address.trim())
       return setError("Informe o endereço de entrega.");
     setError("");
-    const message = buildWhatsAppMessage(items, { name, delivery, address, note });
-    window.open(buildWhatsAppUrl(STORE.whatsappNumber, message), "_blank", "noopener");
+    setWhatsAppLink("");
+    setSubmitting(true);
+    const order = {
+      name, delivery, address, note,
+      lines: items.map(({ id, quantity }) => ({ productId: id, quantity })),
+    };
+    const payload = JSON.stringify(order);
+    if (checkoutAttempt.current?.payload !== payload) {
+      checkoutAttempt.current = { payload, key: crypto.randomUUID() };
+    }
+    try {
+      const response = await fetch("/api/checkout", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ ...order, key: checkoutAttempt.current.key }),
+      });
+      const result = await response.json() as { id?: string; items?: CartItem[]; error?: string };
+      if (!response.ok || !result.items || !result.id) throw new Error(result.error || "Não foi possível registrar o pedido.");
+      const message = buildWhatsAppMessage(result.items, { name, delivery, address, note });
+      setWhatsAppLink(buildWhatsAppUrl(STORE.whatsappNumber, `${message}\nPedido: ${result.id.slice(0, 8).toUpperCase()}`));
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : "Não foi possível registrar o pedido.");
+    } finally {
+      setSubmitting(false);
+    }
   }
+
+  const pendingLink = checkoutAttempt.current?.payload === JSON.stringify({
+    name, delivery, address, note, lines: items.map(({ id, quantity }) => ({ productId: id, quantity })),
+  }) ? whatsAppLink : "";
 
   return (
     <Sheet open={isOpen} onOpenChange={setOpen}>
@@ -71,7 +102,7 @@ export function CartSheet({ products }: { products: Product[] }) {
                             type="button"
                             aria-label="Diminuir quantidade"
                             onClick={() => setQuantity(item.id, item.quantity - 1)}
-                            className="grid size-7 place-items-center rounded border border-border hover:border-primary"
+                            className="grid size-7 place-items-center rounded border border-border hover:border-primary disabled:opacity-40"
                           >
                             <Minus className="size-3.5" />
                           </button>
@@ -82,7 +113,8 @@ export function CartSheet({ products }: { products: Product[] }) {
                             type="button"
                             aria-label="Aumentar quantidade"
                             onClick={() => setQuantity(item.id, item.quantity + 1)}
-                            className="grid size-7 place-items-center rounded border border-border hover:border-primary"
+                            disabled={!product || item.quantity >= Math.min(20, product.stock)}
+                            className="grid size-7 place-items-center rounded border border-border hover:border-primary disabled:opacity-40"
                           >
                             <Plus className="size-3.5" />
                           </button>
@@ -163,12 +195,19 @@ export function CartSheet({ products }: { products: Product[] }) {
                 </span>
               </div>
               {error && <p className="text-sm text-destructive">{error}</p>}
-              <Button
-                onClick={checkout}
-                className="h-12 w-full bg-whatsapp text-base font-semibold text-whatsapp-foreground hover:bg-whatsapp/90"
-              >
-                Finalizar pelo WhatsApp
-              </Button>
+              {pendingLink ? (
+                <Button asChild className="h-12 w-full bg-whatsapp text-base font-semibold text-whatsapp-foreground hover:bg-whatsapp/90">
+                  <a href={pendingLink} target="_blank" rel="noopener noreferrer">Enviar pedido pelo WhatsApp</a>
+                </Button>
+              ) : (
+                <Button
+                  onClick={() => void checkout()}
+                  disabled={submitting}
+                  className="h-12 w-full bg-whatsapp text-base font-semibold text-whatsapp-foreground hover:bg-whatsapp/90"
+                >
+                  {submitting ? "Registrando pedido…" : "Preparar pedido para WhatsApp"}
+                </Button>
+              )}
               <button
                 type="button"
                 onClick={clear}

@@ -51,6 +51,8 @@ function ProductPage() {
   const { product, related } = Route.useLoaderData();
   const { add, setOpen } = useCart();
   const [qty, setQty] = useState(1);
+  const limit = Math.min(product.stock, 20);
+  const quantity = Math.min(qty, limit);
 
   return (
     <div className="mx-auto max-w-7xl px-4 pb-24 pt-32 sm:px-6">
@@ -61,7 +63,7 @@ function ProductPage() {
       <div className="mt-6 grid gap-10 lg:grid-cols-2">
         <div className="enter-up relative overflow-hidden rounded-2xl border border-border bg-card">
           <img
-            src={product.image}
+            src={product.image || "/products/games-stack.jpg"}
             alt={product.name}
             width={1254}
             height={1254}
@@ -97,22 +99,24 @@ function ProductPage() {
             ))}
           </ul>
 
-          <div className="mt-8 flex flex-wrap items-center gap-3">
+          {limit <= 0 ? <p className="mt-8 font-semibold text-accent">Esgotado</p> : <div className="mt-8 flex flex-wrap items-center gap-3">
             <div className="flex h-12 items-center rounded-lg border border-border">
               <button
                 type="button"
                 aria-label="Diminuir quantidade"
-                onClick={() => setQty((q) => Math.max(1, q - 1))}
-                className="grid h-full w-11 place-items-center hover:text-primary"
+                onClick={() => setQty(Math.max(1, quantity - 1))}
+                disabled={quantity <= 1}
+                className="grid h-full w-11 place-items-center hover:text-primary disabled:opacity-40"
               >
                 <Minus className="size-4" />
               </button>
-              <span className="w-8 text-center font-semibold">{qty}</span>
+              <span className="w-8 text-center font-semibold">{quantity}</span>
               <button
                 type="button"
                 aria-label="Aumentar quantidade"
-                onClick={() => setQty((q) => q + 1)}
-                className="grid h-full w-11 place-items-center hover:text-primary"
+                onClick={() => setQty(Math.min(limit, quantity + 1))}
+                disabled={quantity >= limit}
+                className="grid h-full w-11 place-items-center hover:text-primary disabled:opacity-40"
               >
                 <Plus className="size-4" />
               </button>
@@ -120,8 +124,8 @@ function ProductPage() {
             <button
               type="button"
               onClick={() => {
-                add(product, qty);
-                toast.success(`${qty}x ${product.name} no carrinho!`);
+                add(product, quantity);
+                toast.success(`${quantity}x ${product.name} no carrinho!`);
               }}
               className="inline-flex h-12 flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-lg border border-primary px-5 font-semibold text-primary transition-colors hover:bg-primary/10"
             >
@@ -130,14 +134,14 @@ function ProductPage() {
             <button
               type="button"
               onClick={() => {
-                add(product, qty);
+                add(product, quantity);
                 setOpen(true);
               }}
               className="inline-flex h-12 flex-1 items-center justify-center whitespace-nowrap rounded-lg bg-primary px-5 font-semibold text-primary-foreground shadow-glow transition-transform hover:scale-[1.03]"
             >
               Comprar agora
             </button>
-          </div>
+          </div>}
           <p className="mt-4 text-sm text-muted-foreground">
             O pedido é finalizado pelo WhatsApp: combinamos pagamento, entrega ou retirada por lá.
           </p>

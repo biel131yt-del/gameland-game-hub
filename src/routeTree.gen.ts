@@ -10,12 +10,21 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AdminRouteImport } from './routes/admin'
 import { Route as LojaRouteImport } from './routes/loja'
+import { Route as ApiAdminRouteImport } from './routes/api.admin'
+import { Route as ApiCheckoutRouteImport } from './routes/api.checkout'
 import { Route as ProdutoIdRouteImport } from './routes/produto.$id'
+import { Route as ApiProductPhotoIdRouteImport } from './routes/api.product-photo.$id'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LojaRoute = LojaRouteImport.update({
@@ -23,40 +32,93 @@ const LojaRoute = LojaRouteImport.update({
   path: '/loja',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiAdminRoute = ApiAdminRouteImport.update({
+  id: '/api/admin',
+  path: '/api/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiCheckoutRoute = ApiCheckoutRouteImport.update({
+  id: '/api/checkout',
+  path: '/api/checkout',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ProdutoIdRoute = ProdutoIdRouteImport.update({
   id: '/produto/$id',
   path: '/produto/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiProductPhotoIdRoute = ApiProductPhotoIdRouteImport.update({
+  id: '/api/product-photo/$id',
+  path: '/api/product-photo/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
   '/loja': typeof LojaRoute
+  '/api/admin': typeof ApiAdminRoute
+  '/api/checkout': typeof ApiCheckoutRoute
   '/produto/$id': typeof ProdutoIdRoute
+  '/api/product-photo/$id': typeof ApiProductPhotoIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
   '/loja': typeof LojaRoute
+  '/api/admin': typeof ApiAdminRoute
+  '/api/checkout': typeof ApiCheckoutRoute
   '/produto/$id': typeof ProdutoIdRoute
+  '/api/product-photo/$id': typeof ApiProductPhotoIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
   '/loja': typeof LojaRoute
+  '/api/admin': typeof ApiAdminRoute
+  '/api/checkout': typeof ApiCheckoutRoute
   '/produto/$id': typeof ProdutoIdRoute
+  '/api/product-photo/$id': typeof ApiProductPhotoIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/loja' | '/produto/$id'
+  fullPaths:
+    | '/'
+    | '/admin'
+    | '/loja'
+    | '/api/admin'
+    | '/api/checkout'
+    | '/produto/$id'
+    | '/api/product-photo/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/loja' | '/produto/$id'
-  id: '__root__' | '/' | '/loja' | '/produto/$id'
+  to:
+    | '/'
+    | '/admin'
+    | '/loja'
+    | '/api/admin'
+    | '/api/checkout'
+    | '/produto/$id'
+    | '/api/product-photo/$id'
+  id:
+    | '__root__'
+    | '/'
+    | '/admin'
+    | '/loja'
+    | '/api/admin'
+    | '/api/checkout'
+    | '/produto/$id'
+    | '/api/product-photo/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AdminRoute: typeof AdminRoute
   LojaRoute: typeof LojaRoute
+  ApiAdminRoute: typeof ApiAdminRoute
+  ApiCheckoutRoute: typeof ApiCheckoutRoute
   ProdutoIdRoute: typeof ProdutoIdRoute
+  ApiProductPhotoIdRoute: typeof ApiProductPhotoIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -68,11 +130,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/loja': {
       id: '/loja'
       path: '/loja'
       fullPath: '/loja'
       preLoaderRoute: typeof LojaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/admin': {
+      id: '/api/admin'
+      path: '/api/admin'
+      fullPath: '/api/admin'
+      preLoaderRoute: typeof ApiAdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/checkout': {
+      id: '/api/checkout'
+      path: '/api/checkout'
+      fullPath: '/api/checkout'
+      preLoaderRoute: typeof ApiCheckoutRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/produto/$id': {
@@ -82,13 +165,24 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProdutoIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/product-photo/$id': {
+      id: '/api/product-photo/$id'
+      path: '/api/product-photo/$id'
+      fullPath: '/api/product-photo/$id'
+      preLoaderRoute: typeof ApiProductPhotoIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AdminRoute: AdminRoute,
   LojaRoute: LojaRoute,
+  ApiAdminRoute: ApiAdminRoute,
+  ApiCheckoutRoute: ApiCheckoutRoute,
   ProdutoIdRoute: ProdutoIdRoute,
+  ApiProductPhotoIdRoute: ApiProductPhotoIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
